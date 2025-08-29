@@ -1,88 +1,57 @@
-#include<iostream> 
-#include<vector> 
-#include<fstream>
-#include<sstream> 
-using namespace std; 
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+using namespace std;
+
 class Employee
 {
-    private: 
-    int id; 
-    string name; 
-    double salary; 
-    public: 
-    Employee(void) 
-    {   } 
-    Employee(int id , string name , double salary) : id(id) , name(name) , salary(salary)
-    {   }
-    void accept( void )
+    int id;
+    string name;
+    double salary;
+
+public:
+    Employee()
     {
-        cout<<"Id : "; 
-        cin>>id; 
-        cout<<"Name : "; 
-        cin>>name; 
-        cout<<"Salary : "; 
-        cin>>salary; 
     }
-    void display( )
+
+    Employee(int id, string name, double salary)
     {
-        cout<<"Id : "<<id<<endl;
-        cout<<"Name : "<<name<<endl; 
-        cout<<"Salary : "<<salary<<endl;
+        this->id = id;
+        this->name = name;
+        this->salary = salary;
     }
-    int getId( void )
+    void accept()
     {
-        return this->id; 
+        cout << "Enter empid - ";
+        cin >> id;
+        cout << "Enter name - ";
+        cin >> name;
+        cout << "Enter salary - ";
+        cin >> salary;
     }
-    string getName( void )
+
+    void display()
     {
-        return this->name; 
+        cout << "Empid - " << id << endl;
+        cout << "Name - " << name << endl;
+        cout << "Salary - " << salary << endl;
     }
-    double getSalary( void )
+
+    int getId()
     {
-        return this->salary; 
+        return id;
+    }
+    string getName()
+    {
+        return name;
+    }
+    double getSalary()
+    {
+        return salary;
     }
 };
-void loadEmployees(vector<Employee*> &emp_list)
-{
-    ifstream fin("Employee.txt"); 
-    string line; 
-    while(getline(fin,line))
-    {
-        //cout<<line; 
-        stringstream data(line); 
-        string id , name , salary; 
-        getline(data,id,','); 
-        getline(data,name,','); 
-        getline(data,salary,',');
-        emp_list.push_back(new Employee(stoi(id),name,stod(salary)));  
-    }
-    fin.close(); 
-}
-int findEmployee(vector<Employee*> &emp_list)
-{
-    int id; 
-    cout<<"Enter the id : "; 
-    cin>>id; 
-    for(int i =0 ; i < emp_list.size( ) ; i++)
-    {
-        if(id == emp_list[i]->getId( ))
-        {
-            return i; 
-        }
-    }
-    return -1; 
-}
-void saveEmployees(vector<Employee*> &emp_list)
-{
-    ofstream fout("Employee.txt", ios::app);
-    for(int i = 0 ; i < emp_list.size() ; i++)
-    {
-        Employee *employee = new Employee( ); 
-        employee = emp_list[i]; 
-        fout<<employee->getId()<<","<<employee->getName()<<","<<employee->getSalary()<<endl; 
-    } 
-    fout.close(); 
-}
+
 int menu()
 {
     cout << "***************************" << endl;
@@ -97,55 +66,104 @@ int menu()
     cout << "***************************" << endl;
     return choice;
 }
-int main(int argc, char const *argv[])
+
+void saveEmployees(vector<Employee *> &emp_list)
 {
-    vector<Employee*> emp_list; 
-    loadEmployees(emp_list); 
-    int choice; 
-    while((choice = menu())!=0)
+    ofstream fout("employee.txt");
+    Employee *employee;
+    for (int i = 0; i < emp_list.size(); i++)
+    {
+        employee = emp_list[i];
+        fout << employee->getId() << "," << employee->getName() << "," << employee->getSalary() << endl;
+    }
+    fout.close();
+}
+
+void loadEmployees(vector<Employee *> &emp_list)
+{
+    ifstream fin("employee.txt");
+    string line;
+    while (getline(fin, line))
+    {
+        stringstream data(line);
+        string id, name, salary;
+        getline(data, id, ',');
+        getline(data, name, ',');
+        getline(data, salary, ',');
+        emp_list.push_back(new Employee(stoi(id), name, stod(salary)));
+    }
+    fin.close();
+    cout << "********************************" << endl;
+    cout << "Employees are added in vector..." << endl;
+    cout << "********************************" << endl;
+}
+
+int findEmployee(vector<Employee *> &emp_list)
+{
+    int id;
+    cout << "Enter empid to search - ";
+    cin >> id;
+    for (int i = 0; i < emp_list.size(); i++)
+    {
+        if (id == emp_list[i]->getId())
+            return i;
+    }
+    return -1;
+}
+
+int main()
+{
+    int choice;
+    vector<Employee *> emp_list;
+    loadEmployees(emp_list);
+    while ((choice = menu()) != 0)
     {
         switch (choice)
         {
-        case 1: 
-            {
-                Employee *employee = new Employee( ); 
-                employee->accept( ); 
-                emp_list.push_back(employee); 
-            }
+        case 1:
+        {
+            Employee *employee = new Employee();
+            employee->accept();
+            emp_list.push_back(employee);
+        }
+        break;
+        case 2:
+            for (int i = 0; i < emp_list.size(); i++)
+                emp_list[i]->display();
             break;
-        case 2: 
-            {
-                for(int i = 0 ; i<emp_list.size() ; i++)
-                {
-                    emp_list[i]->display( ); 
-                }
-            }
-            break; 
-        case 3: 
+        case 3:
         {
-            int index = findEmployee(emp_list); 
-            if(index!=-1)
-            {
-                emp_list[index]->display( ); 
-            }
-            else 
-            cout<<"Not found"<<endl; 
+            int index = findEmployee(emp_list);
+            if (index != -1)
+                emp_list[index]->display();
+            else
+                cout << "Employee not found..." << endl;
         }
-        break; 
-        case 4: 
+        break;
+        case 4:
         {
-            int index = findEmployee(emp_list); 
-            if(index!=-1)
+            int index = findEmployee(emp_list);
+            if (index != -1)
             {
-                delete emp_list[index]; 
-                emp_list.erase(emp_list.begin() + index); 
+                delete emp_list[index];
+                emp_list.erase(emp_list.begin() + index);
             }
+            else
+                cout << "Cannot delete..Employee not found..." << endl;
         }
-        break; 
+        break;
+        case 5:
+        break;
         default:
+            cout << "Wrong choice..." << endl;
             break;
         }
-    } 
-    saveEmployees(emp_list); 
+    }
+
+    saveEmployees(emp_list);
+    cout << "*********************" << endl;
+    cout << "Employees saved..." << endl;
+    cout << "*********************" << endl;
+
     return 0;
 }
